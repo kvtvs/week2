@@ -16,7 +16,7 @@ const cat_list_get = async (req, res, next) => {
       res.json(cats);
     }
     else {
-      next(httpError('No cats found', 404));
+      next('No cats found', 404);
     }
   }
   catch (e) {
@@ -43,8 +43,20 @@ const cat_get = async (req, res, next) => {
 
 const cat_post = async (req, res, next) => {
   // päivämäärä VVVV-KK-PP esim 2015-05-15
+  console.log('cat_post', req.body, req.file);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()){
+    console.log('cat_post validation', errors.array());
+    next(httpError('invalid data', 400));
+    return;
+  }
+  if (!req.file){
+    const err = httpError('file not valid', 400);
+    next(err);
+    return;
+    }
   try {
-      const { name, birthdate, weight, owner, filename } = req.body;
+      const { name, birthdate, weight, owner} = req.body;
       const tulos = await addCat(name, weight, owner, birthdate, req.file.filename, next);
       if(tulos.affectedRows > 0){
         res.json({
@@ -56,7 +68,7 @@ const cat_post = async (req, res, next) => {
         next(httpError('No cat inserted', 400));
       }
   } catch (error) {
-    console.log('cat_post error', e.message);
+    console.log('cat_post error', error.message);
     next(httpError('internal server error', 500));
   }
 };
