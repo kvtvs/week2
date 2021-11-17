@@ -31,7 +31,7 @@ passport.use(new Strategy(
 passport.use(new JWTStrategy(
     {
         jwtFromRequest: ExtraJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: 'teletappi',
+        secretOrKey: process.env.JWT_SECRET
     }, 
     (jwtPayload, done)=>{
         console.log('Payload', jwtPayload);
