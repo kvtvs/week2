@@ -11,7 +11,7 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 }
-const upload = multer({ dest: './uploads/', fileFilter:fnktionnimi });
+const upload = multer({ dest: './uploads/', fileFilter });
 const { cat_list_get, cat_get, cat_post, cat_put, cat_delete } = require('../controllers/catController');
 
 const router = express.Router();
@@ -23,14 +23,19 @@ router
     body('name').notEmpty().escape(),
     body('birthdate').isDate(),
     body('weight').isNumeric(),
-    body('owner').isNumeric(),
     cat_post)
 
-    .put( body('name').notEmpty().escape(),
-    body('birthdate').isDate(),
-    body('weight').isNumeric(),
-    body('owner').isNumeric(),
+    
+
+router
+    .route('/:id')
+    .get(cat_get)
+    .delete(cat_delete)
+    .put( 
+        body('name').notEmpty().escape(),
+        body('birthdate').isDate(),
+        body('weight').isNumeric(),
+        cat_put
     );
 
-router.route('/:id').get(cat_get).delete(cat_delete);
 module.exports = router;
