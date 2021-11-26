@@ -17,7 +17,7 @@ passport.use(new Strategy(
         if (user === undefined) {
           return done(null, false, {message: 'Incorrect email.'});
         }
-        if (bcrypt.compareSync(password, user.password)) {
+        if (!bcrypt.compareSync(password, user.password)) {
           return done(null, false);
         }
         return done(null, {...user}, {message: 'Logged In Successfully'}); // use spread syntax to create shallow copy to get rid of binary row type

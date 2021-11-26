@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const { addUser } = require('../models/userModel');
 const { httpError } = require('../utils/errors');
+const bcrypt = require('bcryptjs');
+const salt = bcrypt.genSaltSync(12);
+
 
 const login = (req, res, next) => {
   // TODO: add passport authenticate
@@ -36,7 +39,9 @@ const user_post = async (req, res, next) => {
   try {
       console.log('lomakkeesta ', req.body);
       const {name, email, passwd} = req.body;
-      const tulos = await addUser(name, email, passwd, next);
+      // hash password
+      const hash = bcrypt.hashSync(passwd, salt);
+      const tulos = await addUser(name, email, hash, next);
       if(tulos.affectedRows > 0){
           res.json({
               message: "user added",

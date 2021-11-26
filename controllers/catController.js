@@ -7,6 +7,8 @@
 const { validationResult } = require('express-validator');
 const { getAllCats, getCat, addCat, modifyCat, deleteCat } = require('../models/catModel');
 const { httpError } = require('../utils/errors');
+const { getCoordinates } = require('../utils/imageMeta');
+const { makeThumbnail } = require('../utils/resize');
 
 //const cats = catModel.cats;
 
@@ -56,24 +58,39 @@ const cat_post = async (req, res, next) => {
     next(err);
     return;
     }
+
+    try {
+      const coords = await getCoordinates(req.file.path);
+      req.body.coords = coords;
+    } catch (e){
+      req.body.coords = [24.74, 60.24];
+    }
+
   try {
-      const { name, birthdate, weight } = req.body;
+      const thumb = await makeThumbnail(
+        req.file.path, 
+        './thumbnails/' + req.file.filename
+        );
+      const { name, birthdate, weight, coords } = req.body;
       const tulos = await addCat(
         name,
         weight,
         req.user.user_id,
         req.file.filename, 
         birthdate,
-        next);
+        JSON.stringify(coords),
+        next
+      );
+      if (thumb){
       if(tulos.affectedRows > 0){
         res.json({
             message: "cat added",
             cat_id: tulos.insertId,
         });
-      }
-      else {
+      } else {
         next(httpError('No cat inserted', 400));
       }
+    }
   } catch (error) {
     console.log('cat_post error', error.message);
     next(httpError('internal server error', 500));

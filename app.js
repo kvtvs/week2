@@ -20,6 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use(express.static('./uploads/'));
+app.use('/thumbnails', express.static('thumbnails'));
 
 app.use(passport.initialize());
 
